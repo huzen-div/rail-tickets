@@ -6,7 +6,7 @@ const { uuid } = require('uuidv4');
 const db = require("../models");
 const { Population } = db;
 const Op = db.Sequelize.Op;
-
+const readXlsxFile = require("read-excel-file/node");
 
 
 const futureName = "population";
@@ -84,6 +84,43 @@ exports.findPopulation = async (req, res) => {
         res.status(500).send({
             message:
                 err.message || `Some error occurred while retrieving ${futureName}.`
+        });
+    }
+};
+
+exports.upload = async (req, res) => {
+    try {
+        if (req.file == undefined) {
+            return res.status(400).send("Please upload an excel file!");
+        }
+
+        let path = __basedir + "/app/resources/static/assets/uploads/" + req.file.filename;
+
+        readXlsxFile(path).then((rows) => {
+            // skip header
+            rows.shift();
+
+            let excelDatas = [];
+            rows.forEach((row) => {
+                let excelData = {
+                    country: row[0],
+                    continent: row[1],
+                    year: row[2],
+                    population: row[3],
+                };
+                excelDatas.push(excelData);
+            });
+            res.send({
+                success: true,
+                message: "Uploaded the file successfully. File name: " + req.file.originalname,
+                data: excelDatas,
+            });
+        });
+    }
+    catch (err) {
+        res.status(500).send({
+            message:
+                err.message || `Some error occurred while upload ${futureName} ${req.file.originalname}.`
         });
     }
 };

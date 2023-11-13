@@ -5,8 +5,10 @@ const cors = require("cors");
 const app = express();
 
 var corsOptions = {
-    origin: "http://localhost:8081"
+    origin: "https://huzen-div.github.io"
 };
+
+global.__basedir = __dirname + "/"; //global.__basedir = __dirname + "/..";
 
 app.use(cors(corsOptions));
 
@@ -27,6 +29,7 @@ const PORT = process.env.PORT || 8090;
 
 // require("./app/routes/store.routes")(app);
 require("./app/routes/population.routes")(app);
+require("./app/routes/financial.routes")(app);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
